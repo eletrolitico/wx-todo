@@ -27,7 +27,7 @@ bool MyApp::OnInit() {
     return false;
   }
 
-  auto frame = new MyFrame();
+  auto frame = new MyFrame(&m_dao);
   frame->Show(true);
   return true;
 }
