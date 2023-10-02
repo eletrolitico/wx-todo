@@ -12,7 +12,12 @@ private:
   void OnHello(wxCommandEvent &event);
   void OnExit(wxCommandEvent &event);
   void OnAbout(wxCommandEvent &event);
+  void OnAdd(wxCommandEvent &event);
+  void OnDelete(wxCommandEvent &event);
+  void OnSelect(wxCommandEvent &event);
   DECLARE_EVENT_TABLE();
+
+  int m_curTodo{-1};
 };
 
 #endif
