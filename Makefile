@@ -18,7 +18,7 @@ app: $(OBJ) objects/sqlite3.o
 	@ echo ' '
 
 objects/sqlite3.o:
-	gcc -c -o objects/sqlite3.o src/sqlite3.c
+	gcc -c -O2 -o objects/sqlite3.o src/sqlite3.c
 
 objects/%.o: src/%.cpp
 	@ echo 'Building target using GCC compiler: $<'

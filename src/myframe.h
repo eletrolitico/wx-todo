@@ -21,7 +21,7 @@ private:
   int m_curTodo{-1};
   Dao *m_dao;
 
-  wxListBox *m_listBox;
+  wxCheckListBox *m_listBox;
 };
 
 #endif

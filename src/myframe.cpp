@@ -1,7 +1,7 @@
 #include "myframe.h"
 #include "dao.h"
+#include "intdata.h"
 #include "newdlg.h"
-#include "wx/msgdlg.h"
 #include <wx/splitter.h>
 
 BEGIN_EVENT_TABLE(MyFrame, wxFrame)
@@ -9,6 +9,7 @@ EVT_MENU(wxID_EXIT, MyFrame::OnExit)
 EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
 EVT_BUTTON(wxID_ADD, MyFrame::OnAdd)
 EVT_BUTTON(wxID_DELETE, MyFrame::OnDelete)
+EVT_LISTBOX(wxID_ANY, MyFrame::OnSelect)
 END_EVENT_TABLE();
 
 MyFrame::MyFrame(Dao *dao)
@@ -32,7 +33,7 @@ MyFrame::MyFrame(Dao *dao)
       wxSP_3D | wxSP_LIVE_UPDATE | wxCLIP_CHILDREN | wxSP_NO_XP_THEME);
 
   auto leftPanel = new wxPanel(splitter, wxID_ANY);
-  m_listBox = new wxListBox(leftPanel, wxID_ANY);
+  m_listBox = new wxCheckListBox(leftPanel, wxID_ANY);
 
   auto btnAdd = new wxButton(leftPanel, wxID_ADD, wxT("Add"));
   auto btnDel = new wxButton(leftPanel, wxID_DELETE, wxT("Delete"));
@@ -60,7 +61,8 @@ MyFrame::MyFrame(Dao *dao)
 
   auto todos = dao->get_todos();
   for (auto t : todos) {
-    m_listBox->Append(t.title);
+    std::cout << "id: " << t.id << "\n";
+    m_listBox->Append(t.title, new myIntData(t.id));
   }
 }
 
@@ -88,4 +90,9 @@ void MyFrame::OnAdd(wxCommandEvent &) {
 void MyFrame::OnDelete(wxCommandEvent &) {
   if (m_curTodo <= 0)
     return;
+}
+
+void MyFrame::OnSelect(wxCommandEvent &evt) {
+  int id = static_cast<myIntData *>(evt.GetClientObject())->GetData();
+  std::cout << "Select: " << id << "\n";
 }
