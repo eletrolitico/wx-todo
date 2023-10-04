@@ -1,8 +1,10 @@
 #include "myframe.h"
+
+#include <wx/splitter.h>
+
 #include "dao.h"
 #include "intdata.h"
 #include "newdlg.h"
-#include <wx/splitter.h>
 
 BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 EVT_MENU(wxID_EXIT, MyFrame::OnExit)
@@ -13,7 +15,10 @@ EVT_LISTBOX(wxID_ANY, MyFrame::OnSelect)
 END_EVENT_TABLE();
 
 MyFrame::MyFrame(Dao *dao)
-    : wxFrame(nullptr, wxID_ANY, wxT("My TODO App")), m_dao(dao) {
+    : wxFrame(nullptr, wxID_ANY, wxT("My TODO App"), wxDefaultPosition,
+              {600, 400}),
+      m_dao(dao) {
+  this->SetIcon(wxIcon("icon"));
   wxMenu *menuFile = new wxMenu;
   menuFile->Append(wxID_EXIT);
 
@@ -28,9 +33,9 @@ MyFrame::MyFrame(Dao *dao)
   CreateStatusBar();
   SetStatusText("Welcome to wxWidgets!");
 
-  auto splitter = new wxSplitterWindow(
-      this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-      wxSP_3D | wxSP_LIVE_UPDATE | wxCLIP_CHILDREN | wxSP_NO_XP_THEME);
+  auto splitter =
+      new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+                           wxSP_3D | wxSP_LIVE_UPDATE);
 
   auto leftPanel = new wxPanel(splitter, wxID_ANY);
   m_listBox = new wxCheckListBox(leftPanel, wxID_ANY);
@@ -44,24 +49,17 @@ MyFrame::MyFrame(Dao *dao)
   btnBar->Add(btnDel, 1);
 
   auto leftSizer = new wxBoxSizer(wxVERTICAL);
-  leftSizer->Add(m_listBox, 1, wxEXPAND);
-  leftSizer->Add(btnBar, 0, wxEXPAND);
+  leftSizer->Add(m_listBox, 1, wxEXPAND | wxLEFT, 5);
+  leftSizer->Add(btnBar, 0, wxEXPAND | wxLEFT, 5);
 
   leftPanel->SetSizerAndFit(leftSizer);
 
-  auto rightPanel = new wxPanel(splitter, wxID_ANY);
-  auto label = new wxStaticText(rightPanel, wxID_ANY, wxT("test text!!"));
+  m_todoPanel = new TodoPanel(splitter);
 
-  auto rightSizer = new wxBoxSizer(wxVERTICAL);
-  rightSizer->Add(label);
+  splitter->SplitVertically(leftPanel, m_todoPanel, 150);
 
-  rightPanel->SetSizerAndFit(rightSizer);
-
-  splitter->SplitVertically(leftPanel, rightPanel, 400);
-
-  auto todos = dao->get_todos();
-  for (auto t : todos) {
-    std::cout << "id: " << t.id << "\n";
+  m_todos = dao->get_todos();
+  for (auto t : m_todos) {
     m_listBox->Append(t.title, new myIntData(t.id));
   }
 }
@@ -75,8 +73,7 @@ void MyFrame::OnAbout(wxCommandEvent &) {
 
 void MyFrame::OnAdd(wxCommandEvent &) {
   NewDlg newDlg(this);
-  if (newDlg.ShowModal() != wxID_OK)
-    return;
+  if (newDlg.ShowModal() != wxID_OK) return;
 
   auto t = newDlg.GetTodo();
 
@@ -85,14 +82,37 @@ void MyFrame::OnAdd(wxCommandEvent &) {
     return;
   }
 
-  m_listBox->Append(t.title);
+  m_todos.push_back(t);
+  m_listBox->Append(t.title, new myIntData(t.id));
 }
 void MyFrame::OnDelete(wxCommandEvent &) {
-  if (m_curTodo <= 0)
+  if (m_curTodo <= 0) {
+    wxMessageBox("Select a todo to delete!");
     return;
+  }
+  if (!m_dao->delete_todo(m_curTodo)) {
+    wxMessageBox(wxT("Error deleting todo!"));
+    return;
+  }
+
+  m_curTodo = -1;
+  m_todoPanel->Unselect();
+
+  m_listBox->Clear();
+  m_todos = m_dao->get_todos();
+  for (auto t : m_todos) {
+    m_listBox->Append(t.title, new myIntData(t.id));
+  }
 }
 
 void MyFrame::OnSelect(wxCommandEvent &evt) {
-  int id = static_cast<myIntData *>(evt.GetClientObject())->GetData();
-  std::cout << "Select: " << id << "\n";
+  m_curTodo = static_cast<myIntData *>(evt.GetClientObject())->GetData();
+  Todo t;
+  for (const Todo &tt : m_todos) {
+    if (tt.id == m_curTodo) {
+      t = tt;
+      break;
+    }
+  }
+  m_todoPanel->SetTodo(t);
 }

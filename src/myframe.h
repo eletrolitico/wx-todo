@@ -3,6 +3,7 @@
 
 #include "dao.h"
 #include "wx/event.h"
+#include "todopanel.h"
 #include <wx/wx.h>
 
 class MyFrame : public wxFrame {
@@ -20,8 +21,10 @@ private:
 
   int m_curTodo{-1};
   Dao *m_dao;
+  wxVector<Todo> m_todos;
 
   wxCheckListBox *m_listBox;
+  TodoPanel *m_todoPanel;
 };
 
 #endif

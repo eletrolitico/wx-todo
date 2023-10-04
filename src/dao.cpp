@@ -1,11 +1,12 @@
 #include "dao.h"
-#include "sqlite3.h"
+
 #include <iostream>
+
+#include "sqlite3.h"
 
 Dao::Dao() {
   valid = sqlite3_open("todos.sqlite", &m_db) == SQLITE_OK;
-  if (!valid)
-    std::cout << "Error db init: " << sqlite3_errmsg(m_db) << "\n";
+  if (!valid) std::cout << "Error db init: " << sqlite3_errmsg(m_db) << "\n";
 }
 
 Dao::~Dao() { sqlite3_close(m_db); }
@@ -24,15 +25,16 @@ bool Dao::exec(const char *sql) {
 }
 
 bool Dao::create_table() {
-  return exec("create table if not exists todos("
-              "id integer primary key asc,"
-              "title text not null,"
-              "desc text,"
-              "done integer not null default 0,"
-              "timestamp integer not null)");
+  return exec(
+      "create table if not exists todos("
+      "id integer primary key asc,"
+      "title text not null,"
+      "desc text,"
+      "done integer not null default 0,"
+      "timestamp integer not null)");
 }
 
-bool Dao::insert_todo(const Todo &t) {
+bool Dao::insert_todo(Todo &t) {
   const char *sql =
       "insert into todos(title,desc,done,timestamp) values(?,?,0,unixepoch())";
 
@@ -48,6 +50,28 @@ bool Dao::insert_todo(const Todo &t) {
   else
     sqlite3_bind_null(stmt, 2);
 
+  sqlite3_step(stmt);
+
+  if (sqlite3_finalize(stmt) != SQLITE_OK) {
+    std::cout << "Error step insert: " << sqlite3_errmsg(m_db) << "\n";
+    return false;
+  }
+
+  t.id = sqlite3_last_insert_rowid(m_db);
+
+  return true;
+}
+
+bool Dao::delete_todo(int id) {
+  const char *sql = "delete from todos where id = ?";
+
+  sqlite3_stmt *stmt;
+  if (sqlite3_prepare_v2(m_db, sql, strlen(sql), &stmt, nullptr) != SQLITE_OK) {
+    std::cout << "Error prepare delete: " << sqlite3_errmsg(m_db) << "\n";
+    return false;
+  }
+
+  sqlite3_bind_int(stmt, 1, id);
   sqlite3_step(stmt);
 
   if (sqlite3_finalize(stmt) != SQLITE_OK) {

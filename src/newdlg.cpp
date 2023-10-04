@@ -3,7 +3,6 @@
 NewDlg::NewDlg(wxWindow *parent)
     : wxDialog(parent, wxID_ANY, "New ToDo", wxDefaultPosition, wxDefaultSize,
                wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) {
-
   m_title = new wxTextCtrl(this, wxID_ANY);
   m_desc = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
                           wxDefaultSize, wxTE_MULTILINE);
@@ -37,6 +36,7 @@ Todo NewDlg::GetTodo() {
   t.id = 0;
   t.title = m_title->GetValue();
   t.desc = m_desc->GetValue();
+  t.done = false;
 
   return t;
 }

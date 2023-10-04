@@ -1,3 +1,5 @@
 /objects
+.vscode
 app
+*.exe
 *.sqlite
