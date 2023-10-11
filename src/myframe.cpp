@@ -3,6 +3,7 @@
 #include <wx/splitter.h>
 
 #include "dao.h"
+#include "ids.h"
 #include "intdata.h"
 #include "newdlg.h"
 
@@ -12,13 +13,20 @@ EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
 EVT_BUTTON(wxID_ADD, MyFrame::OnAdd)
 EVT_BUTTON(wxID_DELETE, MyFrame::OnDelete)
 EVT_LISTBOX(wxID_ANY, MyFrame::OnSelect)
+
+EVT_BUTTON(MyId::DONE, MyFrame::OnToggleDone)
+EVT_BUTTON(wxID_SAVE, MyFrame::OnSave)
 END_EVENT_TABLE();
 
 MyFrame::MyFrame(Dao *dao)
     : wxFrame(nullptr, wxID_ANY, wxT("My TODO App"), wxDefaultPosition,
               {600, 400}),
       m_dao(dao) {
+#ifdef __WXMSW__
   this->SetIcon(wxIcon("icon"));
+#endif
+
+  this->SetSizeHints({500, 300});
   wxMenu *menuFile = new wxMenu;
   menuFile->Append(wxID_EXIT);
 
@@ -73,7 +81,8 @@ void MyFrame::OnAbout(wxCommandEvent &) {
 
 void MyFrame::OnAdd(wxCommandEvent &) {
   NewDlg newDlg(this);
-  if (newDlg.ShowModal() != wxID_OK) return;
+  if (newDlg.ShowModal() != wxID_OK)
+    return;
 
   auto t = newDlg.GetTodo();
 
@@ -116,3 +125,6 @@ void MyFrame::OnSelect(wxCommandEvent &evt) {
   }
   m_todoPanel->SetTodo(t);
 }
+
+void MyFrame::OnSave(wxCommandEvent &) {}
+void MyFrame::OnToggleDone(wxCommandEvent &) {}

@@ -2,8 +2,8 @@
 #define MY_FRAME_H
 
 #include "dao.h"
-#include "wx/event.h"
 #include "todopanel.h"
+#include "wx/event.h"
 #include <wx/wx.h>
 
 class MyFrame : public wxFrame {
@@ -17,6 +17,11 @@ private:
   void OnAdd(wxCommandEvent &event);
   void OnDelete(wxCommandEvent &event);
   void OnSelect(wxCommandEvent &event);
+
+  // evts from todopanel
+  void OnSave(wxCommandEvent &);
+  void OnToggleDone(wxCommandEvent &);
+
   DECLARE_EVENT_TABLE();
 
   int m_curTodo{-1};

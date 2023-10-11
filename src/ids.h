@@ -1,2 +1,2 @@
 
-enum class MyId {};
+enum MyId { DONE };

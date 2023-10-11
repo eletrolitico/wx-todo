@@ -1,4 +1,4 @@
-CC_FLAGS += -O2 -std=c++17 -c $(shell wx-config --cppflags)
+CC_FLAGS += -std=c++17 -g -c $(shell wx-config --cppflags)
 LD_FLAGS += $(shell wx-config --libs)
 CC = $(shell wx-config --cxx)
 
