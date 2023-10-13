@@ -15,6 +15,7 @@ class Dao {
 
   bool create_table();
   bool insert_todo(Todo &todo);
+  bool update_todo(const Todo &todo);
   bool delete_todo(int id);
   wxVector<Todo> get_todos();
 

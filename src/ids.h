@@ -1,2 +1,1 @@
-
-enum MyId { DONE };
+enum MyId { DONE, LIST, PANEL };

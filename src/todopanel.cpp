@@ -8,8 +8,7 @@ END_EVENT_TABLE();
 
 TodoPanel::TodoPanel(wxWindow *parent) : wxPanel(parent, wxID_ANY) {
   m_sizer_main = new wxBoxSizer(wxVERTICAL);
-  m_sizer_title = new wxBoxSizer(wxHORIZONTAL);
-  m_sizer_btn = new wxStdDialogButtonSizer();
+  m_sizer_btn = new wxBoxSizer(wxHORIZONTAL);
 
   m_static_title = new wxStaticText(this, wxID_ANY, wxT("EMPTY"));
   m_static_title->SetFont(title_font);
@@ -27,8 +26,6 @@ TodoPanel::TodoPanel(wxWindow *parent) : wxPanel(parent, wxID_ANY) {
   m_ctrl_title = new wxTextCtrl(this, wxID_ANY);
   m_ctrl_desc = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
                                wxDefaultSize, wxTE_MULTILINE);
-
-  m_sizer_title->Add(m_static_title);
 
   SetSizer(m_sizer_main);
   Unselect();
@@ -49,18 +46,17 @@ void TodoPanel::Unselect() {
   m_mode = PanelMode::EMPTY;
   HideChildren();
 
-  m_sizer_main->Clear();
-
   m_static_empty->Show(true);
   m_sizer_main->AddStretchSpacer(1);
   m_sizer_main->Add(m_static_empty, 0, wxALIGN_CENTER);
   m_sizer_main->AddStretchSpacer(1);
 
-  Fit();
+  Layout();
 }
 
 void TodoPanel::SetShow() {
   if (m_mode == PanelMode::SHOWING) {
+    Layout();
     return;
   }
 
@@ -71,21 +67,23 @@ void TodoPanel::SetShow() {
   m_btn_edit->Show();
   m_btn_done->Show();
 
-  m_sizer_btn->Clear();
-
+  m_sizer_btn->AddStretchSpacer(1);
   m_sizer_btn->Add(m_btn_edit);
+  m_sizer_btn->AddSpacer(5);
   m_sizer_btn->Add(m_btn_done);
 
-  m_sizer_main->Clear();
-
-  m_sizer_main->Add(m_sizer_title, 0, wxALL | wxEXPAND, 10);
+  m_sizer_main->Add(m_static_title, 0, wxALL | wxEXPAND, 10);
   m_sizer_main->Add(m_static_desc, 1, wxLEFT | wxRIGHT | wxEXPAND, 10);
   m_sizer_main->Add(m_sizer_btn, 0, wxALL | wxEXPAND, 10);
 
-  Fit();
+  Layout();
 }
 
 void TodoPanel::HideChildren() {
+  m_sizer_main->Detach(m_sizer_btn);
+  m_sizer_main->Clear();
+  m_sizer_btn->Clear();
+
   m_static_empty->Hide();
   m_static_title->Hide();
   m_static_desc->Hide();
@@ -108,16 +106,16 @@ void TodoPanel::OnEdit(wxCommandEvent &) {
   m_ctrl_title->SetValue(m_static_title->GetLabel());
   m_ctrl_desc->SetValue(m_static_desc->GetLabel());
 
-  m_sizer_btn->Clear();
-
+  m_sizer_btn->AddStretchSpacer(1);
   m_sizer_btn->Add(m_btn_cancel);
+  m_sizer_btn->AddSpacer(5);
   m_sizer_btn->Add(m_btn_save);
 
   m_sizer_main->Add(m_ctrl_title, 0, wxALL | wxEXPAND, 10);
   m_sizer_main->Add(m_ctrl_desc, 1, wxLEFT | wxRIGHT | wxEXPAND, 10);
   m_sizer_main->Add(m_sizer_btn, 0, wxALL | wxEXPAND, 10);
 
-  Fit();
+  Layout();
 }
 
 void TodoPanel::OnCancelEdit(wxCommandEvent &) { SetShow(); }

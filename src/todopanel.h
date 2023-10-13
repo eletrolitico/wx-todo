@@ -13,9 +13,11 @@ public:
   void SetTodo(const Todo &todo);
   void Unselect();
   void SetShow();
+  wxString GetTitle(){return m_ctrl_title->GetValue();}
+  wxString GetDesc(){return m_ctrl_desc->GetValue();}
 
 private:
-  wxBoxSizer *m_sizer_main, *m_sizer_title, *m_sizer_btn;
+  wxBoxSizer *m_sizer_main, *m_sizer_btn;
   wxStaticText *m_static_empty, *m_static_title, *m_static_desc;
   wxTextCtrl *m_ctrl_title, *m_ctrl_desc;
   wxButton *m_btn_edit, *m_btn_done, *m_btn_cancel, *m_btn_save;

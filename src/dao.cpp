@@ -6,7 +6,8 @@
 
 Dao::Dao() {
   valid = sqlite3_open("todos.sqlite", &m_db) == SQLITE_OK;
-  if (!valid) std::cout << "Error db init: " << sqlite3_errmsg(m_db) << "\n";
+  if (!valid)
+    std::cout << "Error db init: " << sqlite3_errmsg(m_db) << "\n";
 }
 
 Dao::~Dao() { sqlite3_close(m_db); }
@@ -25,13 +26,12 @@ bool Dao::exec(const char *sql) {
 }
 
 bool Dao::create_table() {
-  return exec(
-      "create table if not exists todos("
-      "id integer primary key asc,"
-      "title text not null,"
-      "desc text,"
-      "done integer not null default 0,"
-      "timestamp integer not null)");
+  return exec("create table if not exists todos("
+              "id integer primary key asc,"
+              "title text not null,"
+              "desc text,"
+              "done integer not null default 0,"
+              "timestamp integer not null)");
 }
 
 bool Dao::insert_todo(Todo &t) {
@@ -58,6 +58,35 @@ bool Dao::insert_todo(Todo &t) {
   }
 
   t.id = sqlite3_last_insert_rowid(m_db);
+
+  return true;
+}
+
+bool Dao::update_todo(const Todo &t) {
+  const char *sql =
+      "update todos set title = ?, desc = ?, done = ? where id = ?";
+
+  sqlite3_stmt *stmt;
+  if (sqlite3_prepare_v2(m_db, sql, strlen(sql), &stmt, nullptr) != SQLITE_OK) {
+    std::cout << "Error prepare update: " << sqlite3_errmsg(m_db) << "\n";
+    return false;
+  }
+
+  sqlite3_bind_text(stmt, 1, t.title.c_str(), t.title.length(), SQLITE_STATIC);
+  if (t.desc.length() > 0)
+    sqlite3_bind_text(stmt, 2, t.desc.c_str(), t.desc.length(), SQLITE_STATIC);
+  else
+    sqlite3_bind_null(stmt, 2);
+
+  sqlite3_bind_int(stmt, 3, t.done);
+  sqlite3_bind_int(stmt, 4, t.id);
+
+  sqlite3_step(stmt);
+
+  if (sqlite3_finalize(stmt) != SQLITE_OK) {
+    std::cout << "Error step update: " << sqlite3_errmsg(m_db) << "\n";
+    return false;
+  }
 
   return true;
 }
